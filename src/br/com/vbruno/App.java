@@ -16,19 +16,16 @@ public class App {
         String opcao = opcoesIniciais();
 
         while(isOpcaoValida(opcao)) {
-            if(isOpcaoCadastro(opcao)) {
+            if(isOpcaoCadastrar(opcao)) {
                 String dados = JOptionPane.showInputDialog(null, "Digite os " +
                                 "dados dos clientes separados por vírgulas, " +
                                 "conforme o exemplo: Nome, CPF, telefone, Endereço, " +
                                 "Número, Cidade, Estado", "Cadastrar",
                         JOptionPane.INFORMATION_MESSAGE);
-                while(!isDadosValidos(dados)) {
-                    dados = JOptionPane.showInputDialog(null,
-                            "Dados inválidos. Digite os dados dos clientes separados por " +
-                                    "vírgulas, conforme o exemplo: Nome, CPF, telefone, " +
-                                    "Endereço, Número, Cidade, Estado",
-                            "Cadastrar novamente", JOptionPane.INFORMATION_MESSAGE);
+                if(isOpcaoSair(dados)) {
+                    System.exit(0);
                 }
+
                 cadastrar(dados);
                 opcao = opcoesIniciais();
 
@@ -36,21 +33,49 @@ public class App {
                 String cpf = JOptionPane.showInputDialog(null, "Digite o " +
                                 "CPF do cliente que deseja consultar", "Consultar",
                         JOptionPane.INFORMATION_MESSAGE);
+                if(isOpcaoSair(cpf)) {
+                    System.exit(0);
+                }
+
                 consultar(cpf);
                 opcao = opcoesIniciais();
 
-            } else if(isOpcaoSair(opcao)) {
-                sair();
+            } else if (isOpcaoExcluir(opcao)) {
+                String cpf = JOptionPane.showInputDialog(null, "Digite o " +
+                                "CPF do cliente que deseja excluir", "Excluir",
+                        JOptionPane.INFORMATION_MESSAGE);
+                if(isOpcaoSair(cpf)) {
+                    System.exit(0);
+                }
+
+                excluir(cpf);
+                opcao = opcoesIniciais();
+
+            } else if (isOpcaoEditar(opcao)) {
+                String dados = JOptionPane.showInputDialog(null, "Digite os " +
+                                "dados dos clientes separados por vírgulas, " +
+                                "conforme o exemplo: Nome, CPF, telefone, Endereço, " +
+                                "Número, Cidade, Estado", "Editar",
+                        JOptionPane.INFORMATION_MESSAGE);
+                if(isOpcaoSair(dados)) {
+                    System.exit(0);
+                }
+
+                editar(dados);
+                opcao = opcoesIniciais();
             }
         }
     }
 
     private static String opcoesIniciais() {
         String opcao = JOptionPane.showInputDialog(null, "Digite 1 para cadastro," +
-                        " 2 para consultar, 3 para exclusão, 4 para alteração ou 5 para sair.",
+                        " 2 para consultar, 3 para exclusão ou 4 para alteração",
                 "Opção", JOptionPane.INFORMATION_MESSAGE);
 
         while(!isOpcaoValida(opcao)) {
+            if(isOpcaoSair(opcao)) {
+                System.exit(0);
+            }
             opcao = JOptionPane.showInputDialog(null, "Opção inválida! " +
                             "Digite 1 para cadastro," + " 2 para consultar, 3 para exclusão, " +
                             "4 para alteração ou 5 para sair.",
@@ -60,7 +85,14 @@ public class App {
         return opcao;
     }
 
-    private static boolean isOpcaoCadastro(String opcao) {
+    private static boolean isOpcaoValida(String opcao) {
+        if ("1".equals(opcao) || "2".equals(opcao) || "3".equals(opcao) || "4".equals(opcao)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isOpcaoCadastrar(String opcao) {
         if ("1".equals(opcao)) {
             return true;
         } else {
@@ -76,8 +108,24 @@ public class App {
         }
     }
 
+    private static boolean isOpcaoExcluir(String opcao) {
+        if ("3".equals(opcao)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean isOpcaoEditar(String opcao) {
+        if ("4".equals(opcao)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private static boolean isOpcaoSair(String opcao) {
-        if ("5".equals(opcao)) {
+        if (opcao == null) {
             return true;
         } else {
             return false;
@@ -86,16 +134,29 @@ public class App {
 
     private static void cadastrar(String dados) {
         String[] dadosSeparados = dados.split(",");
+
+        while(!isDadosValidos(dados)) {
+            dados = JOptionPane.showInputDialog(null,
+                    "Dados inválidos. Digite os dados dos clientes separados por " +
+                            "vírgulas, conforme o exemplo: Nome, CPF, telefone, " +
+                            "Endereço, Número, Cidade, Estado",
+                    "Cadastrar novamente", JOptionPane.INFORMATION_MESSAGE);
+            if(isOpcaoSair(dados)) {
+                System.exit(0);
+            }
+        }
+
         Cliente cliente = new Cliente(dadosSeparados[0], dadosSeparados[1], dadosSeparados[2],
                 dadosSeparados[3], dadosSeparados[4], dadosSeparados[5], dadosSeparados[6]);
         Boolean isCadastrado = iClienteDAO.cadastrar(cliente);
+
         if(isCadastrado) {
             JOptionPane.showMessageDialog(null,
                     "Cadastro realizado com sucesso!", "Cadastro realizado",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(null,
-                    "Ocorreu um erro interno no cadastro do cliente!", "Erro no cadastro",
+                    "CPF já cadastrado!", "Erro no cadastro",
                     JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -119,18 +180,53 @@ public class App {
         }
     }
 
-    private static void sair() {
-        JOptionPane.showMessageDialog(null, "Até mais!", "Sair",
-                JOptionPane.INFORMATION_MESSAGE);
-        System.exit(0);
+    private static void excluir (String cpf) {
+        if(isApenasNumeros(cpf)){
+            Long cpfLong = Long.parseLong(cpf);
+            Boolean isExcluido = iClienteDAO.excluir(cpfLong);
+            if(isExcluido) {
+                JOptionPane.showMessageDialog(null,
+                        "Cliente exclúido!", "Exclusão realizada",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "CPF não encontrado!", "Erro na exclusão",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "O CPF digitado é inválido!",
+                    "CPF inválido!", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
-    private static boolean isOpcaoValida(String opcao) {
-        if ("1".equals(opcao) || "2".equals(opcao) || "3".equals(opcao) || "4".equals(opcao)
-                || "5".equals(opcao)) {
-            return true;
+    private static void editar (String dados) {
+        String[] dadosSeparados = dados.split(",");
+
+        while(!isDadosValidos(dados)) {
+            dados = JOptionPane.showInputDialog(null,
+                    "Dados inválidos. Digite os dados dos clientes separados por " +
+                            "vírgulas, conforme o exemplo: Nome, CPF, telefone, " +
+                            "Endereço, Número, Cidade, Estado",
+                    "Cadastrar novamente", JOptionPane.INFORMATION_MESSAGE);
+            if(isOpcaoSair(dados)) {
+                System.exit(0);
+            }
         }
-        return false;
+
+        Cliente cliente = new Cliente(dadosSeparados[0], dadosSeparados[1], dadosSeparados[2],
+                dadosSeparados[3], dadosSeparados[4], dadosSeparados[5], dadosSeparados[6]);
+        Boolean isEditado = iClienteDAO.alterar(cliente);
+
+        if(isEditado) {
+            JOptionPane.showMessageDialog(null,
+                    "Edição realizada com sucesso!", "Edição realizada",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Cliente não encontrado", "Erro na edição",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private static Boolean isDadosValidos(String dados) {
