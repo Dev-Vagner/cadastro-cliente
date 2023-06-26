@@ -1,6 +1,7 @@
 package br.com.vbruno;
 
 import br.com.vbruno.dao.ClienteMapDAO;
+import br.com.vbruno.dao.ClienteSetDAO;
 import br.com.vbruno.dao.IClienteDAO;
 import br.com.vbruno.domain.Cliente;
 
@@ -11,7 +12,7 @@ public class App {
     private static IClienteDAO iClienteDAO;
 
     public static void main(String[] args) {
-        iClienteDAO = new ClienteMapDAO();
+        iClienteDAO = new ClienteSetDAO();
 
         String opcao = opcoesIniciais();
 
@@ -133,8 +134,6 @@ public class App {
     }
 
     private static void cadastrar(String dados) {
-        String[] dadosSeparados = dados.split(",");
-
         while(!isDadosValidos(dados)) {
             dados = JOptionPane.showInputDialog(null,
                     "Dados inválidos. Digite os dados dos clientes separados por " +
@@ -145,6 +144,7 @@ public class App {
                 System.exit(0);
             }
         }
+        String[] dadosSeparados = dados.split(",");
 
         Cliente cliente = new Cliente(dadosSeparados[0], dadosSeparados[1], dadosSeparados[2],
                 dadosSeparados[3], dadosSeparados[4], dadosSeparados[5], dadosSeparados[6]);
@@ -201,8 +201,6 @@ public class App {
     }
 
     private static void editar (String dados) {
-        String[] dadosSeparados = dados.split(",");
-
         while(!isDadosValidos(dados)) {
             dados = JOptionPane.showInputDialog(null,
                     "Dados inválidos. Digite os dados dos clientes separados por " +
@@ -213,6 +211,7 @@ public class App {
                 System.exit(0);
             }
         }
+        String[] dadosSeparados = dados.split(",");
 
         Cliente cliente = new Cliente(dadosSeparados[0], dadosSeparados[1], dadosSeparados[2],
                 dadosSeparados[3], dadosSeparados[4], dadosSeparados[5], dadosSeparados[6]);
