@@ -6,6 +6,9 @@ import br.com.vbruno.dao.IClienteDAO;
 import br.com.vbruno.domain.Cliente;
 
 import javax.swing.*;
+import java.text.Normalizer;
+
+import static java.text.Normalizer.normalize;
 
 public class App {
 
@@ -263,6 +266,12 @@ public class App {
     }
 
     private static Boolean isApenasLetras(String str){
-        return str != null && str.matches("[a-zA-Z\\s]+");
+        String strOficial = Normalizer
+                .normalize(str, Normalizer.Form.NFD)
+                .replaceAll("[^\\p{ASCII}]", "");
+
+        return strOficial != null && strOficial
+                .replaceAll("\\s" , "")
+                .matches("[a-zA-Z\\s]+");
     }
 }
