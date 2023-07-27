@@ -58,9 +58,4 @@ public class ClienteSetDAO implements IClienteDAO{
         }
         return null;
     }
-
-    @Override
-    public Collection<Cliente> buscarTodos() {
-        return this.set;
-    }
 }
